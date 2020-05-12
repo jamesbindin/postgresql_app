@@ -1,30 +1,28 @@
 from psycopg2 import pool
 
-
 class Database:
     """Uses psycopy2 to make a pool of connection to the database, its methods return and dispose of connections"""
-    connection_pool = None
+    __connection_pool = None
 
     @classmethod
-    def initialize(cls):
+    def initialize(cls, **kwargs):
         """Opens a connection pool and stores it as a class variable"""
-        cls.connection_pool = pool.SimpleConnectionPool(minconn=1, maxconn=10, database="postgres",
-                                                        user="postgres", password="password", host="localhost")
+        cls.__connection_pool = pool.SimpleConnectionPool(minconn=1, maxconn=10, **kwargs)
 
     @classmethod
     def get_connection(cls):
         """Returns a connection to the database from the connection pool"""
-        return cls.connection_pool.getconn()
+        return cls.__connection_pool.getconn()
 
     @classmethod
     def return_connection(cls, connection):
         """Disposes of connection, requires an active connection as a parameter"""
-        Database.connection_pool.putconn(connection)
+        Database.__connection_pool.putconn(connection)
 
     @classmethod
     def close_all_connections(cls):
         """Close all connections in the pool"""
-        Database.connection_pool.closeall()
+        Database.__connection_pool.closeall()
 
 
 class CursorFromConnectionFromPool:
